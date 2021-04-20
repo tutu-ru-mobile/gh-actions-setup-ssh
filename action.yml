@@ -1,23 +1,26 @@
-name: 'Hello World'
-description: 'Greet someone'
+name: 'setup ssh'
+description: 'setup ssh session'
 inputs:
-  private-ssh:
-    description: 'private ssh key'
+  ssh-private-key:
+    description: 'ssh-private-key'
     required: true
     default: 'missing ssh key'
-  key1:
-    description: 'temp'
-    required: true
-    default: 'missing'
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
 runs:
   using: "composite"
   steps:
-    - run: echo Hello ${{ inputs.key1 }}.
+    - name: Setup SSH
       shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
+      env:
+        SSH_PRIVATE: "${{ inputs.ssh-private-key }}"
+      run: |
+        ssh-agent -k || echo "skip"
+        mkdir -p ~/.ssh
+        #ssh-keyscan github.com >> ~/.ssh/known_hosts
+        for ip in $(dig @8.8.8.8 github.com +short); do ssh-keyscan github.com,$ip; ssh-keyscan $ip; done 2>/dev/null >> ~/.ssh/known_hosts
+        ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+        ssh-add - <<< "$SSH_PRIVATE"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git remote git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
+        export SSH_AUTH_SOCK="/tmp/ssh_agent_$RANDOM.sock"
+        
