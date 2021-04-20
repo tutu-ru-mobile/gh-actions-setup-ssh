@@ -3,7 +3,7 @@ Action для GitHub Actions по настройке SSH сессии
 
 Пример использования:
 
-```
+```yaml
 jobs:
   ...
     steps:
