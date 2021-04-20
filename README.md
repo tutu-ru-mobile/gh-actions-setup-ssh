@@ -1,2 +1,3 @@
 # gh-actions-setup-ssh
-Setup ssh session
+Action для GitHub Actions по настройке SSH сессии
+
