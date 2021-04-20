@@ -13,6 +13,7 @@ runs:
       env:
         SSH_PRIVATE: "${{ inputs.ssh-private-key }}"
       run: |
+        export SSH_AUTH_SOCK="/tmp/ssh_agent_$RANDOM.sock"
         ssh-agent -k || echo "skip"
         mkdir -p ~/.ssh
         #ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -21,6 +22,6 @@ runs:
         ssh-add - <<< "$SSH_PRIVATE"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git remote git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
-        export SSH_AUTH_SOCK="/tmp/ssh_agent_$RANDOM.sock"
+        git remote set-url origin git@github.com:$GITHUB_REPOSITORY.git
+       
         
